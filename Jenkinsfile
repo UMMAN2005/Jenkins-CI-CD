@@ -72,7 +72,7 @@ pipeline {
         stage('Unit Testing') {
             steps {
                    sh '''
-                    source set_env.sh
+                    source ./scripts/set_env.sh
                     npm test
                     '''
             }
@@ -82,7 +82,7 @@ pipeline {
             steps {
                 catchError(buildResult: 'SUCCESS', message: 'Oops! It will be fixed in the future releases', stageResult: 'UNSTABLE') {
                     sh '''
-                    source set_env.sh
+                    source ./scripts/set_env.sh
                     npm run coverage
                     '''
                 }
