@@ -30,6 +30,9 @@ pipeline {
         MONGO_PASSWORD = credentials('mongo-db-password')
         SONAR_SCANNER_HOME = tool 'SonarQube-Scanner-620'
         // GITEA_TOKEN = credentials('gitea-api-token')
+        HARBOR_DOMAIN = 'ayazumman.xyz'
+        IMAGE = "${env.HARBOR_DOMAIN}/jenkins/solar-system"
+        TAG = "${env.GIT_COMMIT ?: 'build-' + new Date().format('yyyyMMddHHmmss')}"
     }
 
     options {
@@ -97,7 +100,7 @@ pipeline {
 
         stage('SAST - SonarQube') {
             steps {
-                timeout(time: 120, unit: 'SECONDS') {
+                timeout(time: 60, unit: 'SECONDS') {
                     withSonarQubeEnv('sonar-qube-server') {
                         sh 'echo $SONAR_SCANNER_HOME'
                         sh '''
@@ -111,36 +114,35 @@ pipeline {
                 }
             }
         } 
-/*
+
         stage('Build Docker Image') {
             steps {
-                sh  'printenv'
-                sh  'docker build -t siddharth67/solar-system:$GIT_COMMIT .'
+                sh "sudo docker build -t ${env.IMAGE}:${env.TAG} ."
             }
         }
 
         stage('Trivy Vulnerability Scanner') {
             steps {
-                sh  ''' 
-                    trivy image siddharth67/solar-system:$GIT_COMMIT \
+                sh  """
+                    trivy image ${env.IMAGE}:${env.TAG} \
                         --severity LOW,MEDIUM,HIGH \
                         --exit-code 0 \
                         --quiet \
-                        --format json -o trivy-image-MEDIUM-results.json
+                        --format json -o trivy-image-LMH-results.json
 
-                    trivy image siddharth67/solar-system:$GIT_COMMIT \
+                    trivy image ${env.IMAGE}:${env.TAG} \
                         --severity CRITICAL \
                         --exit-code 1 \
                         --quiet \
                         --format json -o trivy-image-CRITICAL-results.json
-                '''
+                """
             }
             post {
                 always {
                     sh '''
                         trivy convert \
                             --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
-                            --output trivy-image-MEDIUM-results.html trivy-image-MEDIUM-results.json 
+                            --output trivy-image-LMH-results.html trivy-image-LMH-results.json 
 
                         trivy convert \
                             --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
@@ -148,7 +150,7 @@ pipeline {
 
                         trivy convert \
                             --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
-                            --output trivy-image-MEDIUM-results.xml  trivy-image-MEDIUM-results.json 
+                            --output trivy-image-LMH-results.xml  trivy-image-LMH-results.json 
 
                         trivy convert \
                             --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
@@ -158,14 +160,22 @@ pipeline {
             }
         } 
 
-        stage('Push Docker Image') {
+        stage("Login to Harbor") {
             steps {
-                withDockerRegistry(credentialsId: 'docker-hub-credentials', url: "") {
-                    sh  'docker push siddharth67/solar-system:$GIT_COMMIT'
+                withCredentials([usernamePassword(credentialsId: 'harbor-credentials',
+                                                 usernameVariable: 'HARBOR_USERNAME',
+                                                 passwordVariable: 'HARBOR_PASSWORD')]) {
+                    sh "echo ${env.HARBOR_PASSWORD} | docker login -u ${env.HARBOR_USERNAME} --password-stdin ${env.HARBOR_DOMAIN}"
                 }
             }
         }
 
+        stage("Push to Harbor") {
+            steps {
+                sh "docker push ${env.IMAGE}:${env.TAG}"
+            }
+        }
+/*
         stage('Deploy - AWS EC2') {
             when {
                 branch 'feature/*'
