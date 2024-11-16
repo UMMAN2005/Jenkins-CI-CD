@@ -124,13 +124,13 @@ pipeline {
         stage('Trivy Vulnerability Scanner') {
             steps {
                 sh  """
-                    trivy image ${env.IMAGE}:${env.TAG} \
+                    sudo trivy image ${env.IMAGE}:${env.TAG} \
                         --severity LOW,MEDIUM,HIGH \
                         --exit-code 0 \
                         --quiet \
                         --format json -o trivy-image-LMH-results.json
 
-                    trivy image ${env.IMAGE}:${env.TAG} \
+                    sudo trivy image ${env.IMAGE}:${env.TAG} \
                         --severity CRITICAL \
                         --exit-code 1 \
                         --quiet \
@@ -140,19 +140,19 @@ pipeline {
             post {
                 always {
                     sh '''
-                        trivy convert \
+                        sudo trivy convert \
                             --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
                             --output trivy-image-LMH-results.html trivy-image-LMH-results.json 
 
-                        trivy convert \
+                        sudo trivy convert \
                             --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
                             --output trivy-image-CRITICAL-results.html trivy-image-CRITICAL-results.json
 
-                        trivy convert \
+                        sudo trivy convert \
                             --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
                             --output trivy-image-LMH-results.xml  trivy-image-LMH-results.json 
 
-                        trivy convert \
+                        sudo trivy convert \
                             --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
                             --output trivy-image-CRITICAL-results.xml trivy-image-CRITICAL-results.json          
                     '''
