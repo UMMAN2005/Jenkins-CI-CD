@@ -1,7 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 const express = require("express");
-const os = require("os");
+const OS = require("os");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const app = express();
@@ -74,7 +74,7 @@ app.get("/api-docs", (req, res) => {
 app.get("/os", function (req, res) {
   res.setHeader("Content-Type", "application/json");
   res.send({
-    os: os.hostname(),
+    os: OS.hostname(),
     env: process.env.NODE_ENV,
   });
 });

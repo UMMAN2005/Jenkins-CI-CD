@@ -71,14 +71,20 @@ pipeline {
 
         stage('Unit Testing') {
             steps {
-                sh 'npm test' 
+                   sh '''
+                    source set_env.sh
+                    npm test
+                    '''
             }
         }    
 
         stage('Code Coverage') {
             steps {
                 catchError(buildResult: 'SUCCESS', message: 'Oops! It will be fixed in the future releases', stageResult: 'UNSTABLE') {
-                    sh 'npm run coverage'
+                    sh '''
+                    source set_env.sh
+                    npm run coverage
+                    '''
                 }
             }
         }
