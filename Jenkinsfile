@@ -37,6 +37,18 @@ pipeline {
     }
 
     stages {
+        stage('Create .env file') {
+            steps {
+                script {
+                    sh '''
+                        echo "MONGO_URI=$MONGO_URI" > .env
+                        echo "MONGO_USERNAME=$MONGO_USERNAME" >> .env
+                        echo "MONGO_PASSWORD=$MONGO_PASSWORD" >> .env
+                    '''
+                }
+            }
+        }
+
         stage('Installing Dependencies') {
             steps {
                 sh 'npm install --no-audit'
@@ -71,20 +83,14 @@ pipeline {
 
         stage('Unit Testing') {
             steps {
-                   sh '''
-                    . scripts/set_env.sh
-                    npm test
-                    '''
+                   sh 'npm test'
             }
         }    
 
         stage('Code Coverage') {
             steps {
                 catchError(buildResult: 'SUCCESS', message: 'Oops! It will be fixed in the future releases', stageResult: 'UNSTABLE') {
-                    sh '''
-                    . scripts/set_env.sh
-                    npm run coverage
-                    '''
+                    sh 'npm run coverage'
                 }
             }
         }

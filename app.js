@@ -6,7 +6,10 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const app = express();
 const cors = require("cors");
+const dotenv = require("dotenv");
 const serverless = require("serverless-http");
+
+dotenv.config();
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "/")));
