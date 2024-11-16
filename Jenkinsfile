@@ -172,7 +172,7 @@ pipeline {
 
         stage("Push to Harbor") {
             steps {
-                sh "docker push ${env.IMAGE}:${env.TAG}"
+                sh "sudo docker push ${env.IMAGE}:${env.TAG}"
             }
         }
 /*
