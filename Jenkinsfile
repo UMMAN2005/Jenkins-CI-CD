@@ -184,17 +184,23 @@ pipeline {
                 script {
                     sshagent(['gcp-deploy-instance']) {
                         sh """
-                            ssh -o StrictHostKeyChecking=no ayazumman@34.171.240.22 << EOF
+                            ssh -o StrictHostKeyChecking=no ayazumman@34.171.240.22 << 'EOF'
                                 if sudo docker ps -a --format '{{.Names}}' | grep -q '^solar-system$'; then
                                     echo "Stopping and removing existing container 'solar-system'..."
-                                    sudo docker stop solar-system
+                                    sudo docker stop solar-system && sudo docker rm solar-system
                                 fi
-                                sudo docker run --name --rm solar-system -e MONGO_URI=mongodb+srv://supercluster.d83jj.mongodb.net/superData -e MONGO_USERNAME=superuser -e MONGO_PASSWORD=SuperPassword -p 5555:5555 -d $IMAGE:$TAG
-EOF
+                                echo "Starting new container..."
+                                sudo docker run --name solar-system --rm \
+                                    -e MONGO_URI=mongodb+srv://supercluster.d83jj.mongodb.net/superData \
+                                    -e MONGO_USERNAME=superuser \
+                                    -e MONGO_PASSWORD=SuperPassword \
+                                    -p 5555:5555 \
+                                    -d ${IMAGE}:${TAG}
+            EOF
                         """
                     }
                 }
-            }         
+            }    
         }
 /*
         stage('Integration Testing - AWS EC2') {
