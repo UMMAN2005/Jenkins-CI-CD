@@ -183,11 +183,20 @@ pipeline {
             steps {
                 script {
                     sshagent(['gcp-deploy-instance']) {
-                        sh '''
-                            ssh -o StrictHostKeyChecking=no ayazumman@34.171.240.22 "
-                                bash scripts/deploy.sh
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ayazumman@34.171.240.22
                             "
-                        '''
+                                if sudo docker ps -a | grep -q 'solar-system'
+                                then
+                                    sudo docker stop 'solar-system' && sudo docker rm 'solar-system'
+                                fi
+                                sudo docker run --name solar-system \
+                                    -e MONGO_URI=$MONGO_URI \
+                                    -e MONGO_USERNAME=$MONGO_USERNAME \
+                                    -e MONGO_PASSWORD=$MONGO_PASSWORD \
+                                    -p 5555:5555 -d $IMAGE:$TAG
+                            "
+                        """
                     }
                 }
             }          
