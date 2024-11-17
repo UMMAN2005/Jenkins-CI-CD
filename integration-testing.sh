@@ -16,6 +16,7 @@ gcloud --version || { echo "gcloud CLI not installed. Exiting..."; exit 1; }
 # List all instances in the project
 echo "Fetching GCP instance data..."
 INSTANCE_DATA=$(gcloud compute instances list --format=json)
+echo "Instance Data - $INSTANCE_DATA"
 
 # Extract external IP of an instance with a specific tag
 INSTANCE_IP=$(echo "$INSTANCE_DATA" | /usr/bin/jq -r '.[] | select(.tags.items[]? == "deploy") | .networkInterfaces[0].accessConfigs[0].natIP')
