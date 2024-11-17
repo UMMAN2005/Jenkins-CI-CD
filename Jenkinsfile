@@ -191,12 +191,12 @@ pipeline {
                                 fi
                                 echo "Starting new container..."
                                 sudo docker run --name solar-system --rm \
-                                    -e MONGO_URI=mongodb+srv://supercluster.d83jj.mongodb.net/superData \
-                                    -e MONGO_USERNAME=superuser \
-                                    -e MONGO_PASSWORD=SuperPassword \
+                                    -e MONGO_URI=$MONGO_URI \
+                                    -e MONGO_USERNAME=$MONGO_USERNAME \
+                                    -e MONGO_PASSWORD=$MONGO_PASSWORD \
                                     -p 5555:5555 \
-                                    -d ${IMAGE}:${TAG}
-EOF
+                                    -d $IMAGE:$TAG
+                            EOF
                         """
                     }
                 }
