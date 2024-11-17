@@ -186,7 +186,7 @@ pipeline {
                         sh """
                             ssh -o StrictHostKeyChecking=no ayazumman@34.171.240.22
                             "
-                            sudo docker run --name solar-system -e MONGO_URI=mongodb+srv://supercluster.d83jj.mongodb.net/superData -e MONGO_USERNAME=superuser -e MONGO_PASSWORD=SuperPassword -p 5555:5555 -d $IMAGE:$TAG
+                            sudo /usr/bin/docker run --name solar-system -e MONGO_URI=mongodb+srv://supercluster.d83jj.mongodb.net/superData -e MONGO_USERNAME=superuser -e MONGO_PASSWORD=SuperPassword -p 5555:5555 -d $IMAGE:$TAG
                             "
                         """
                     }
