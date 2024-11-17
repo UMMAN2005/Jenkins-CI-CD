@@ -1,16 +1,24 @@
 #!/bin/bash
 echo "Integration test on GCP........"
 
+# Ensure jq is installed
+echo "Installing jq if not already installed..."
+if ! command -v jq &> /dev/null; then
+    echo "jq not found. Installing..."
+    sudo apt update && sudo apt install -y jq || { echo "Failed to install jq"; exit 1; }
+fi
+
+echo "jq is installed. Proceeding with the script..."
+
 # Ensure gcloud CLI is installed and authenticated
 gcloud --version || { echo "gcloud CLI not installed. Exiting..."; exit 1; }
 
 # List all instances in the project
 echo "Fetching GCP instance data..."
 INSTANCE_DATA=$(gcloud compute instances list --format=json)
-echo "Instance Data - $INSTANCE_DATA"
 
 # Extract external IP of an instance with a specific tag
-INSTANCE_IP=$(echo "$INSTANCE_DATA" | jq -r '.[] | select(.tags.items[]? == "deploy") | .networkInterfaces[0].accessConfigs[0].natIP')
+INSTANCE_IP=$(echo "$INSTANCE_DATA" | /usr/bin/jq -r '.[] | select(.tags.items[]? == "deploy") | .networkInterfaces[0].accessConfigs[0].natIP')
 echo "Instance IP - $INSTANCE_IP"
 
 if [[ -n "$INSTANCE_IP" ]]; then
