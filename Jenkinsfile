@@ -196,26 +196,27 @@ pipeline {
                                     -e MONGO_PASSWORD=$MONGO_PASSWORD \
                                     -p 5555:5555 \
                                     -d $IMAGE:$TAG
-                            EOF
+EOF
                         """
                     }
                 }
             }    
         }
-/*
-        stage('Integration Testing - AWS EC2') {
-            when {
-                branch 'feature/*'
-            }
+
+        stage('Integration Testing - GCP Compute Engine') {
+            // when {
+            //     branch 'feature/*'
+            // }
             steps {
-                withAWS(credentials: 'aws-s3-ec2-lambda-creds', region: 'us-east-2') {
-                    sh  '''
-                        bash integration-testing-ec2.sh
-                    '''
+                withCredentials([file(credentialsId: 'gcp-service-account-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                    sh """
+                        gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+                        bash integration-testing.sh
+                    """
                 }
             }
         }
-
+/*
         stage('K8S - Update Image Tag') {
             when {
                 branch 'PR*'
