@@ -185,11 +185,12 @@ pipeline {
                     sshagent(['gcp-deploy-instance']) {
                         sh """
                             ssh -o StrictHostKeyChecking=no ayazumman@34.171.240.22 << EOF
-                                hostname
-                                pwd
-                                which docker
-                                sudo /usr/bin/docker run --name solar-system -e MONGO_URI=mongodb+srv://supercluster.d83jj.mongodb.net/superData -e MONGO_USERNAME=superuser -e MONGO_PASSWORD=SuperPassword -p 5555:5555 -d $IMAGE:$TAG
-                            EOF
+                                if sudo docker ps -a --format '{{.Names}}' | grep -q '^solar-system$'; then
+                                    echo "Stopping and removing existing container 'solar-system'..."
+                                    sudo docker stop solar-system
+                                fi
+                                sudo docker run --name --rm solar-system -e MONGO_URI=mongodb+srv://supercluster.d83jj.mongodb.net/superData -e MONGO_USERNAME=superuser -e MONGO_PASSWORD=SuperPassword -p 5555:5555 -d $IMAGE:$TAG
+EOF
                         """
                     }
                 }
