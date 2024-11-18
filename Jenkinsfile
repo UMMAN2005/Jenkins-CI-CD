@@ -341,7 +341,7 @@ EOF
                         # Modify app.js as required
                         tail app.js
                         echo "******************************************************************"
-                        sed -i 's/const port = 5555;/const port = 8080;/' app.js
+                        sed -i 's/const port = 5555;/const port = process.env.PORT || 8080;/' app.js
 
                         sed -i "/^app\\.listen(port/ s/^/\\/\\//" app.js
 
@@ -367,8 +367,9 @@ EOF
                             --trigger-http \
                             --entry-point handler \
                             --source gs://solar-system-lambda-bucket/solar-system-lambda-${BUILD_ID}.zip \
-                            --set-env-vars MONGO_USERNAME=${MONGO_USERNAME},MONGO_PASSWORD=${MONGO_PASSWORD},MONGO_URI=${MONGO_URI}
-                            --allow-unauthenticated
+                            --set-env-vars MONGO_USERNAME=${MONGO_USERNAME},MONGO_PASSWORD=${MONGO_PASSWORD},MONGO_URI=${MONGO_URI},PORT=8080 \
+                            --allow-unauthenticated \
+                            --timeout=300s
                     """
                 }
             }
