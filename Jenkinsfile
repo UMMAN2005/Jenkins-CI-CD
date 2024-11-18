@@ -418,7 +418,6 @@ EOF
 
             publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'coverage/lcov-report', reportFiles: 'index.html', reportName: 'Code Coverage HTML Report', reportTitles: '', useWrapperFileDirectly: true])
 */
-            sh 'sudo rm -rf /var/lib/jenkins/workspace/*'
         }
     }
 }

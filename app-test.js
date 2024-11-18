@@ -49,6 +49,18 @@ describe("Planets API Suite", () => {
 });
 
 describe("Testing Other Endpoints", () => {
+  describe("it checks index endpoint", () => {
+    it("it should fetch the index page", (done) => {
+      chai
+        .request(server)
+        .get("/")
+        .end((err, res) => {
+          res.should.have.status(200);
+          done();
+        });
+    });
+  });
+
   describe("it should fetch OS Details", () => {
     it("it should fetch OS details", (done) => {
       chai
