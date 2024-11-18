@@ -31,6 +31,7 @@ pipeline {
         SONAR_SCANNER_HOME = tool 'SonarQube-Scanner-620'
         GITEA_TOKEN = credentials('gitea-api-token')
         GITEA_URL = '34.122.218.25:3000'
+        CLUSTER_ADDRESS = 'https://5587d40b0dafbc9207ed36d7cd43271b.serveo.net'
         HARBOR_DOMAIN = 'ayazumman.xyz'
         IMAGE = "${env.HARBOR_DOMAIN}/jenkins/solar-system"
         TAG = "${env.GIT_COMMIT ?: 'build-' + new Date().format('yyyyMMddHHmmss')}"
@@ -229,13 +230,15 @@ EOF
                         git switch main
                         git checkout -b feature-$BUILD_ID
                         sed -i "s#${IMAGE}.*#$IMAGE:$GIT_COMMIT#g" deployment.yml
-                        cat deployment.yml
                         
                         git config --global user.email "ummanmemmedov2005@gmail.com"
+                        git config --global user.name "UMMAN2005"
                         git remote set-url origin http://$GITEA_TOKEN@$GITEA_URL/Jenkins/solar-system-gitops-argocd
                         git add .
                         git commit -am "Updated docker image in deployment manifest"
-                        git push -u origin feature-$BUILD_ID
+                        git fetch origin main
+                        git rebase origin/main
+                        git push -u origin feature-$BUILD_ID --force
                     """
                 }
             }
@@ -265,7 +268,7 @@ EOF
                 """
             }
         }
-
+/*
         stage('App Deployed?') {
             when {
                 branch 'PR*'
@@ -285,7 +288,7 @@ EOF
                 sh '''
                     chmod 777 $(pwd)
                     sudo docker run -v $(pwd):/zap/wrk/:rw  ghcr.io/zaproxy/zaproxy zap-api-scan.py \
-                    -t http://<cluster_ip>:30000/api-docs/ \
+                    -t $CLUSTER_ADDRESS/api-docs/ \
                     -f openapi \
                     -r zap_report.html \
                     -w zap_report.md \
@@ -295,25 +298,21 @@ EOF
                 '''
             }
         }
-/*
-        stage('Upload - AWS S3') {
+*/
+        stage('Upload - GCP Storage') {
             when {
                 branch 'PR*'
             }
             steps {
-                withAWS(credentials: 'aws-s3-ec2-lambda-creds', region: 'us-east-2') {
+                withCredentials([file(credentialsId: 'gcp-service-account-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                     sh  '''
-                        ls -ltr
                         mkdir reports-$BUILD_ID
                         cp -rf coverage/ reports-$BUILD_ID/
                         cp dependency*.* test-results.xml trivy*.* zap*.* reports-$BUILD_ID/
-                        ls -ltr reports-$BUILD_ID/
                     '''
-                    s3Upload(
-                        file:"reports-$BUILD_ID", 
-                        bucket:'solar-system-jenkins-reports-bucket', 
-                        path:"jenkins-$BUILD_ID/"
-                    )
+                sh '''
+                    gsutil -m cp -r reports-$BUILD_ID gs://solar-system-jenkins-reports-bucket/jenkins-$BUILD_ID/
+                '''
                 }
             }
         } 
@@ -329,13 +328,14 @@ EOF
             }
         }
 
-        stage('Lambda - S3 Upload & Deploy') {
+        stage('Cloud Function - GCS Upload & Deploy') {
             when {
                 branch 'main'
             }
             steps {
-                withAWS(credentials: 'aws-s3-ec2-lambda-creds', region: 'us-east-2') {
+                withCredentials([file(credentialsId: 'gcp-service-account-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                     sh '''
+                        # Modify app.js as required
                         tail -5 app.js
                         echo "******************************************************************"
                         sed -i "/^app\\.listen(3000/ s/^/\\/\\//" app.js
@@ -344,48 +344,47 @@ EOF
                         echo "******************************************************************"
                         tail -5 app.js
                     '''
-                    sh  '''
+                    sh '''
+                        # Create a ZIP file of the function
                         zip -qr solar-system-lambda-$BUILD_ID.zip app* package* index.html node*
                         ls -ltr solar-system-lambda-$BUILD_ID.zip
                     '''
-                    s3Upload(
-                        file: "solar-system-lambda-${BUILD_ID}.zip", 
-                        bucket:'solar-system-lambda-bucket'
-                    )
-                    sh """
-                        aws lambda update-function-configuration \
-                            --function-name solar-system-function  \
-                            --environment '{"Variables":{ "MONGO_USERNAME": "${MONGO_USERNAME}","MONGO_PASSWORD": "${MONGO_PASSWORD}","MONGO_URI": "${MONGO_URI}"}}'
-                    """
                     sh '''
-                        aws lambda update-function-code \
-                            --function-name solar-system-function \
-                            --s3-bucket solar-system-lambda-bucket \
-                            --s3-key solar-system-lambda-$BUILD_ID.zip
+                        # Upload the ZIP file to the GCS bucket
+                        gsutil cp solar-system-lambda-$BUILD_ID.zip gs://solar-system-lambda-bucket/
                     '''
+                    sh """
+                        # Deploy the function to GCP and set environment variables
+                        gcloud functions deploy solar-system-function \
+                            --runtime nodejs18 \
+                            --trigger-http \
+                            --entry-point handler \
+                            --source gs://solar-system-lambda-bucket/solar-system-lambda-${BUILD_ID}.zip \
+                            --set-env-vars MONGO_USERNAME=${MONGO_USERNAME},MONGO_PASSWORD=${MONGO_PASSWORD},MONGO_URI=${MONGO_URI}
+                    """
                 }
             }
         }
 
-        stage('Lambda - Invoke Function') {
+        stage('Cloud Function - Invoke Function') {
             when {
                 branch 'main'
             }
             steps {
-                withAWS(credentials: 'aws-s3-ec2-lambda-creds', region: 'us-east-2') {
+                withCredentials([file(credentialsId: 'gcp-service-account-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                     sh '''
+                        # Wait for 30 seconds to ensure function is deployed and ready
                         sleep 30s
 
-                        function_url_data=$(aws lambda get-function-url-config --function-name solar-system-function)
+                        # Get the function URL
+                        function_url_data=$(gcloud functions describe solar-system-function --format="value(httpsTrigger.url)")
 
-                        function_url=$(echo $function_url_data | jq -r '.FunctionUrl | sub("/$"; "")')
-                        
-                        curl -Is  $function_url/live | grep -i "200 OK"
+                        # Use curl to invoke the function and check for a 200 OK response
+                        curl -Is $function_url_data/live | grep -i "200 OK"
                     '''
                 }
             }
         }
-        */
     }
 
     post {
