@@ -25,11 +25,8 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => {
-    console.log("MongoDB connected successfully");
-  })
+  .then(() => {})
   .catch((err) => {
-    console.error("MongoDB connection error:", err);
     process.exit(1); // Exit the app if DB connection fails
   });
 
@@ -54,7 +51,6 @@ app.post("/planets", async (req, res) => {
     }
     res.json(planetData);
   } catch (err) {
-    console.error("Error fetching planet data:", err);
     res.status(500).send("Error fetching planet data");
   }
 });
@@ -66,7 +62,6 @@ app.get("/", (req, res) => {
 app.get("/api-docs", (req, res) => {
   fs.readFile("oas.json", "utf8", (err, data) => {
     if (err) {
-      console.error("Error reading file:", err);
       return res.status(500).send("Error reading file");
     }
     res.json(JSON.parse(data));
@@ -95,12 +90,9 @@ app.get("/ready", async (req, res) => {
       res.status(500).json({ status: "not ready" });
     }
   } catch (err) {
-    console.error("Database readiness check failed:", err);
     res.status(500).json({ status: "not ready" });
   }
 });
-
-console.log(`Server running on port ${port}`);
 
 // Start the server
 app.listen(port);
