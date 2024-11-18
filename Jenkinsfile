@@ -232,6 +232,7 @@ EOF
                         sed -i "s#${IMAGE}.*#$IMAGE:$GIT_COMMIT#g" deployment.yml
                         
                         git config --global user.email "ummanmemmedov2005@gmail.com"
+                        git config --global user.name "UMMAN2005"
                         git remote set-url origin http://$GITEA_TOKEN@$GITEA_URL/Jenkins/solar-system-gitops-argocd
                         git add .
                         git commit -am "Updated docker image in deployment manifest"
