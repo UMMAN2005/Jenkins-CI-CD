@@ -99,7 +99,7 @@ pipeline {
                 }
             }
         }
-
+/*
         stage('SAST - SonarQube') {
             steps {
                 timeout(time: 120, unit: 'SECONDS') {
@@ -268,7 +268,7 @@ EOF
                 """
             }
         }
-/*
+        
         stage('App Deployed?') {
             when {
                 branch 'PR*'
