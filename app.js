@@ -100,6 +100,8 @@ app.get("/ready", async (req, res) => {
   }
 });
 
+console.log(`Server running on port ${port}`);
+
 // Start the server
 app.listen(port);
 
