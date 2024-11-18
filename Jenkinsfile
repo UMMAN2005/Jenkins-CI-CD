@@ -42,12 +42,6 @@ pipeline {
     }
 
     stages {
-        stage('Wipe Workspace') {
-            steps {
-                sh 'sudo rm -rf /var/lib/jenkins/workspace/*'
-            }
-        }
-        
         stage('Create .env file') {
             steps {
                 script {
@@ -424,6 +418,7 @@ EOF
 
             publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'coverage/lcov-report', reportFiles: 'index.html', reportName: 'Code Coverage HTML Report', reportTitles: '', useWrapperFileDirectly: true])
 */
+            sh 'sudo rm -rf /var/lib/jenkins/workspace/*'
         }
     }
 }
