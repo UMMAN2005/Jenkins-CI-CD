@@ -101,8 +101,6 @@ app.get("/ready", async (req, res) => {
 });
 
 // Start the server
-app.listen(port, () => {
-  console.log(`Server successfully listening on port ${port}`);
-});
+app.listen(port);
 
 module.exports = app;
