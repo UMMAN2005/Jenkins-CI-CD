@@ -31,6 +31,7 @@ pipeline {
         SONAR_SCANNER_HOME = tool 'SonarQube-Scanner-620'
         GITEA_TOKEN = credentials('gitea-api-token')
         GITEA_URL = '34.122.218.25:3000'
+        CLUSTER_ADDRESS = 'https://5587d40b0dafbc9207ed36d7cd43271b.serveo.net'
         HARBOR_DOMAIN = 'ayazumman.xyz'
         IMAGE = "${env.HARBOR_DOMAIN}/jenkins/solar-system"
         TAG = "${env.GIT_COMMIT ?: 'build-' + new Date().format('yyyyMMddHHmmss')}"
@@ -229,13 +230,14 @@ EOF
                         git switch main
                         git checkout -b feature-$BUILD_ID
                         sed -i "s#${IMAGE}.*#$IMAGE:$GIT_COMMIT#g" deployment.yml
-                        cat deployment.yml
                         
                         git config --global user.email "ummanmemmedov2005@gmail.com"
                         git remote set-url origin http://$GITEA_TOKEN@$GITEA_URL/Jenkins/solar-system-gitops-argocd
                         git add .
                         git commit -am "Updated docker image in deployment manifest"
-                        git push -u origin feature-$BUILD_ID
+                        git fetch origin main
+                        git rebase origin/main
+                        git push -u origin feature-$BUILD_ID --force
                     """
                 }
             }
@@ -285,7 +287,7 @@ EOF
                 sh '''
                     chmod 777 $(pwd)
                     sudo docker run -v $(pwd):/zap/wrk/:rw  ghcr.io/zaproxy/zaproxy zap-api-scan.py \
-                    -t http://<cluster_ip>:30000/api-docs/ \
+                    -t $CLUSTER_ADDRESS/api-docs/ \
                     -f openapi \
                     -r zap_report.html \
                     -w zap_report.md \
