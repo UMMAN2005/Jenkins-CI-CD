@@ -283,7 +283,7 @@ EOF
                 branch 'PR*'
             }
             steps {
-                sh """
+                sh '''
                     chmod 777 $(pwd)
                     sudo docker run -v $(pwd):/zap/wrk/:rw  ghcr.io/zaproxy/zaproxy zap-api-scan.py \
                     -t $CLUSTER_ADDRESS/api-docs/ \
@@ -293,7 +293,7 @@ EOF
                     -J zap_json_report.json \
                     -x zap_xml_report.xml \
                     -c zap_ignore_rules
-                """
+                '''
             }
         }
 /*
