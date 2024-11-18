@@ -1,10 +1,9 @@
 {
-  "name": "Solar System",
+  "name": "solar-system",
   "version": "6.7.6",
   "author": "Umman Mammadov",
-  "homepage": "https://www.linkedin.com/in/barahalikar-siddharth/",
+  "homepage": "https://www.github.com/UMMAN2005/",
   "license": "MIT",
-  "type": "module",
   "scripts": {
     "start": "node app.js",
     "test": "mocha app-test.js --timeout 10000  --exit",
