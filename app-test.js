@@ -1,4 +1,4 @@
-import server from "./app";
+import server from "./app.js";
 import chai from "chai";
 import chaiHttp from "chai-http";
 
