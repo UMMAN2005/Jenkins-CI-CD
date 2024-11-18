@@ -42,7 +42,7 @@ app.post("/planets", function (req, res) {
     function (err, planetData) {
       if (err) {
         alert(
-          "Oops, We only have 8 planets and a sun. Select a number from 0 - 8"
+          "Oops, We only have 8 planets and the Sun. Select a number from 0 - 8"
         );
         res.send("Error in Planet Data");
       } else {
