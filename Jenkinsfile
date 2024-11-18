@@ -230,12 +230,13 @@ EOF
                         git switch main
                         git checkout -b feature-$BUILD_ID
                         sed -i "s#${IMAGE}.*#$IMAGE:$GIT_COMMIT#g" deployment.yml
-                        cat deployment.yml
                         
                         git config --global user.email "ummanmemmedov2005@gmail.com"
                         git remote set-url origin http://$GITEA_TOKEN@$GITEA_URL/Jenkins/solar-system-gitops-argocd
                         git add .
                         git commit -am "Updated docker image in deployment manifest"
+                        git fetch origin main
+                        git rebase origin/main
                         git push -u origin feature-$BUILD_ID
                     """
                 }
