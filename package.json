@@ -4,6 +4,8 @@
   "author": "Umman Mammadov",
   "homepage": "https://www.github.com/UMMAN2005/",
   "license": "MIT",
+  "description": "This is a simple solar system project",
+  "main": "app.js",
   "scripts": {
     "start": "node app.js",
     "test": "mocha app-test.js --timeout 10000  --exit",

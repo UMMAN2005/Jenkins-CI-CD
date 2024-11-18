@@ -339,13 +339,16 @@ EOF
                     '''
                     sh '''
                         # Modify app.js as required
-                        tail -5 app.js
+                        tail app.js
                         echo "******************************************************************"
                         sed -i "/^app\\.listen(port/ s/^/\\/\\//" app.js
+                        sed -i "/console\\.log/ s/^/\\/\\//" app.js
+
                         sed -i "s/^module.exports = app;/\\/\\/module.exports = app;/g" app.js
-                        sed -i "s|^//module.exports.handler|module.exports.handler|" app.js
+
+                        sed -i '/^\\/\\/module.exports = app;/a \\nexports.solarSystemFunction = (req, res) => {\\n  app(req, res);  // Route all requests to Express app\\n};' app.js
                         echo "******************************************************************"
-                        tail -5 app.js
+                        tail app.js
                     '''
                     sh '''
                         # Create a ZIP file of the function
