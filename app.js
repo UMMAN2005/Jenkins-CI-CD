@@ -1,11 +1,11 @@
-import express from "express";
-import path from "path";
-import fs from "fs";
-import OS from "os";
-import bodyParser from "body-parser";
-import mongoose from "mongoose";
-import cors from "cors";
-import dotenv from "dotenv";
+const express = require("express");
+const path = require("path");
+const fs = require("fs");
+const OS = require("os");
+const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const dotenv = require("dotenv");
 
 dotenv.config();
 
