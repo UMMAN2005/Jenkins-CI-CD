@@ -56,7 +56,8 @@ pipeline {
 
         stage('Installing Dependencies') {
             steps {
-                sh 'npm install --no-audit'
+                sh 'npm cache clean --force'
+                sh 'npm cache clean --force'
             }
         }
 
