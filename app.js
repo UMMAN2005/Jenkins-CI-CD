@@ -90,6 +90,6 @@ app.get("/ready", function (req, res) {
 });
 
 app.listen(5555, () => {
-  console.log("Server successfully listening the port 5555");
+  console.log("Server successfully running on the port: 5555");
 });
 module.exports = app;
