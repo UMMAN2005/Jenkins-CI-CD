@@ -76,7 +76,6 @@ app.get("/api-docs", (req, res) => {
 app.get("/os", (req, res) => {
   res.json({
     os: OS.hostname(),
-    env: process.env.NODE_ENV,
   });
 });
 
