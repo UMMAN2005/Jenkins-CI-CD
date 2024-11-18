@@ -335,15 +335,14 @@ EOF
             steps {
                 withCredentials([file(credentialsId: 'gcp-service-account-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                     sh '''
-                    PORT=8080 >> .env
-                    '''
-                    sh '''
                         gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
                     '''
                     sh '''
                         # Modify app.js as required
                         tail app.js
                         echo "******************************************************************"
+                        sed -i 's/const port = 5555;/const port = 8080;/' app.js
+
                         sed -i "/^app\\.listen(port/ s/^/\\/\\//" app.js
 
                         sed -i "s/^module.exports = app;/\\/\\/module.exports = app;/g" app.js

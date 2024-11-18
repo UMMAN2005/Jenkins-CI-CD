@@ -10,7 +10,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 5555;
+const port = 5555;
 
 // Middleware
 app.use(bodyParser.json());
