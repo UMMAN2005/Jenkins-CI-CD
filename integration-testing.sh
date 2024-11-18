@@ -18,7 +18,7 @@ echo "Fetching GCP instance data..."
 INSTANCE_DATA=$(gcloud compute instances list --format=json)
 
 # Extract external IP of an instance with a specific tag
-INSTANCE_IP=$(echo "$INSTANCE_DATA" | /usr/bin/jq -r '.[1].networkInterfaces[0].accessConfigs[0].natIP')
+INSTANCE_IP=$(echo "$INSTANCE_DATA" | jq -r '.[1].networkInterfaces[0].accessConfigs[0].natIP')
 echo "Instance IP - $INSTANCE_IP"
 
 if [[ -n "$INSTANCE_IP" ]]; then

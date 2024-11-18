@@ -29,7 +29,8 @@ pipeline {
         MONGO_USERNAME = credentials('mongo-db-username')
         MONGO_PASSWORD = credentials('mongo-db-password')
         SONAR_SCANNER_HOME = tool 'SonarQube-Scanner-620'
-        // GITEA_TOKEN = credentials('gitea-api-token')
+        GITEA_TOKEN = credentials('gitea-api-token')
+        GITEA_URL = '34.122.218.25:3000'
         HARBOR_DOMAIN = 'ayazumman.xyz'
         IMAGE = "${env.HARBOR_DOMAIN}/jenkins/solar-system"
         TAG = "${env.GIT_COMMIT ?: 'build-' + new Date().format('yyyyMMddHHmmss')}"
@@ -177,9 +178,9 @@ pipeline {
         }
 
         stage('Deploy - GCP Compute Engine') {
-            // when {
-            //     branch 'feature/*'
-            // }
+            when {
+                branch 'feature/*'
+            }
             steps {
                 script {
                     sshagent(['gcp-deploy-instance']) {
@@ -204,9 +205,9 @@ EOF
         }
 
         stage('Integration Testing - GCP Compute Engine') {
-            // when {
-            //     branch 'feature/*'
-            // }
+            when {
+                branch 'feature/*'
+            }
             steps {
                 withCredentials([file(credentialsId: 'gcp-service-account-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                     sh """
@@ -216,28 +217,26 @@ EOF
                 }
             }
         }
-/*
+
         stage('K8S - Update Image Tag') {
             when {
                 branch 'PR*'
             }
             steps {
-                sh 'git clone -b main http://64.227.187.25:5555/dasher-org/solar-system-gitops-argocd'
+                sh "git clone -b main http://$GITEA_URL/Jenkins/solar-system-gitops-argocd"
                 dir("solar-system-gitops-argocd/kubernetes") {
-                    sh '''
-                        #### Replace Docker Tag ####
-                        git checkout main
+                    sh """
+                        git switch main
                         git checkout -b feature-$BUILD_ID
-                        sed -i "s#siddharth67.*#siddharth67/solar-system:$GIT_COMMIT#g" deployment.yml
+                        sed -i "s#${IMAGE}.*#$IMAGE:$GIT_COMMIT#g" deployment.yml
                         cat deployment.yml
                         
-                        #### Commit and Push to Feature Branch ####
-                        git config --global user.email "jenkins@dasher.com"
-                        git remote set-url origin http://$GITEA_TOKEN@64.227.187.25:5555/dasher-org/solar-system-gitops-argocd
+                        git config --global user.email "ummanmemmedov2005@gmail.com"
+                        git remote set-url origin http://$GITEA_TOKEN@$GITEA_URL/Jenkins/solar-system-gitops-argocd
                         git add .
-                        git commit -am "Updated docker image"
+                        git commit -am "Updated docker image in deployment manifest"
                         git push -u origin feature-$BUILD_ID
-                    '''
+                    """
                 }
             }
         }
@@ -249,14 +248,14 @@ EOF
             steps {
                 sh """
                     curl -X 'POST' \
-                        'http://64.227.187.25:5555/api/v1/repos/dasher-org/solar-system-gitops-argocd/pulls' \
+                        'http://$GITEA_URL/api/v1/repos/Jenkins/solar-system-gitops-argocd/pulls' \
                         -H 'accept: application/json' \
                         -H 'Authorization: token $GITEA_TOKEN' \
                         -H 'Content-Type: application/json' \
                         -d '{
-                            "assignee": "gitea-admin",
+                            "assignee": "UMMAN2005",
                                 "assignees": [
-                                    "gitea-admin"
+                                    "UMMAN2005"
                                 ],
                             "base": "main",
                             "body": "Updated docker image in deployment manifest",
@@ -273,7 +272,7 @@ EOF
             }
             steps {
                 timeout(time: 1, unit: 'DAYS') {
-                    input message: 'Is the PR Merged and ArgoCD Synced?', ok: 'YES! PR is Merged and ArgoCD Application is Synced'
+                    input message: 'Is the PR Merged and ArgoCD Synced?', ok: 'YES! Let us continue with DAST', submitter: 'admin'
                 }
             }
         }
@@ -284,10 +283,9 @@ EOF
             }
             steps {
                 sh '''
-                    #### REPLACE below with Kubernetes http://IP_Address:30000/api-docs/ #####
                     chmod 777 $(pwd)
-                    docker run -v $(pwd):/zap/wrk/:rw  ghcr.io/zaproxy/zaproxy zap-api-scan.py \
-                    -t http://134.209.155.222:30000/api-docs/ \
+                    sudo docker run -v $(pwd):/zap/wrk/:rw  ghcr.io/zaproxy/zaproxy zap-api-scan.py \
+                    -t http://<cluster_ip>:30000/api-docs/ \
                     -f openapi \
                     -r zap_report.html \
                     -w zap_report.md \
@@ -297,7 +295,7 @@ EOF
                 '''
             }
         }
-
+/*
         stage('Upload - AWS S3') {
             when {
                 branch 'PR*'
