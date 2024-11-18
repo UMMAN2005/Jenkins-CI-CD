@@ -42,6 +42,12 @@ pipeline {
     }
 
     stages {
+        stage('Wipe Workspace') {
+            steps {
+                sh 'sudo rm -rf /var/lib/jenkins/workspace/*'
+            }
+        }
+        
         stage('Create .env file') {
             steps {
                 script {
