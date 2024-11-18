@@ -237,7 +237,7 @@ EOF
                         git commit -am "Updated docker image in deployment manifest"
                         git fetch origin main
                         git rebase origin/main
-                        git push -u origin feature-$BUILD_ID
+                        git push -u origin feature-$BUILD_ID --force
                     """
                 }
             }
