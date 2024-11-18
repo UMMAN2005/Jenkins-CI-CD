@@ -22,13 +22,6 @@ mongoose.connect(process.env.MONGO_URI, {
   useUnifiedTopology: true,
 });
 
-// mongoose.connect("mongodb+srv://supercluster.d83jj.mongodb.net/superData", {
-//   user: "superuser",
-//   pass: "SuperPassword",
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-// });
-
 const Schema = mongoose.Schema;
 
 const dataSchema = new Schema({
