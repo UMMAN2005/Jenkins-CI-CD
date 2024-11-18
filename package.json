@@ -4,6 +4,7 @@
   "author": "Umman Mammadov",
   "homepage": "https://www.linkedin.com/in/barahalikar-siddharth/",
   "license": "MIT",
+  "type": "module",
   "scripts": {
     "start": "node app.js",
     "test": "mocha app-test.js --timeout 10000  --exit",
