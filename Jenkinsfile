@@ -31,6 +31,7 @@ pipeline {
         SONAR_SCANNER_HOME = tool 'SonarQube-Scanner-620'
         GITEA_TOKEN = credentials('gitea-api-token')
         GITEA_URL = '34.122.218.25:3000'
+        CLUSTER_ADDRESS = 'https://5587d40b0dafbc9207ed36d7cd43271b.serveo.net'
         HARBOR_DOMAIN = 'ayazumman.xyz'
         IMAGE = "${env.HARBOR_DOMAIN}/jenkins/solar-system"
         TAG = "${env.GIT_COMMIT ?: 'build-' + new Date().format('yyyyMMddHHmmss')}"
@@ -282,17 +283,17 @@ EOF
                 branch 'PR*'
             }
             steps {
-                sh '''
+                sh """
                     chmod 777 $(pwd)
                     sudo docker run -v $(pwd):/zap/wrk/:rw  ghcr.io/zaproxy/zaproxy zap-api-scan.py \
-                    -t http://<cluster_ip>:30000/api-docs/ \
+                    -t $CLUSTER_ADDRESS/api-docs/ \
                     -f openapi \
                     -r zap_report.html \
                     -w zap_report.md \
                     -J zap_json_report.json \
                     -x zap_xml_report.xml \
                     -c zap_ignore_rules
-                '''
+                """
             }
         }
 /*
