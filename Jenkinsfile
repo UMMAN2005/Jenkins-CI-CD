@@ -310,9 +310,9 @@ EOF
                         cp -rf coverage/ reports-$BUILD_ID/
                         cp dependency*.* test-results.xml trivy*.* zap*.* reports-$BUILD_ID/
                     '''
-                sh '''
-                    gsutil -m cp -r reports-$BUILD_ID gs://solar-system-jenkins-reports-bucket/jenkins-$BUILD_ID/
-                '''
+                    sh '''
+                        gsutil -m cp -r reports-$BUILD_ID gs://solar-system-jenkins-reports-bucket/jenkins-$BUILD_ID/
+                    '''
                 }
             }
         } 
@@ -338,7 +338,7 @@ EOF
                         # Modify app.js as required
                         tail -5 app.js
                         echo "******************************************************************"
-                        sed -i "/^app\\.listen(3000/ s/^/\\/\\//" app.js
+                        sed -i "/^app\\.listen(port/ s/^/\\/\\//" app.js
                         sed -i "s/^module.exports = app;/\\/\\/module.exports = app;/g" app.js
                         sed -i "s|^//module.exports.handler|module.exports.handler|" app.js
                         echo "******************************************************************"
