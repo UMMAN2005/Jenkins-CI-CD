@@ -358,7 +358,6 @@ EOF
                     sh """
                         gcloud functions deploy solar-system-function \
                             --runtime nodejs18 \
-                            --port 5555 \
                             --trigger-http \
                             --entry-point app \
                             --source gs://solar-system-lambda-bucket/solar-system-lambda-${BUILD_ID}.zip \
