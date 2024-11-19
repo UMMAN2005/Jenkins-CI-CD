@@ -31,7 +31,7 @@ pipeline {
         SONAR_SCANNER_HOME = tool 'SonarQube-Scanner-620'
         GITEA_TOKEN = credentials('gitea-api-token')
         GITEA_URL = '34.122.218.25:3000'
-        CLUSTER_ADDRESS = 'https://0342535614a89b.lhr.life'
+        CLUSTER_ADDRESS = 'https://4bfb13adb96565.lhr.life'
         HARBOR_DOMAIN = 'ayazumman.xyz'
         IMAGE = "${env.HARBOR_DOMAIN}/jenkins/solar-system"
         TAG = "${env.GIT_COMMIT ?: 'build-' + new Date().format('yyyyMMddHHmmss')}"
