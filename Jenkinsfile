@@ -361,7 +361,7 @@ EOF
                             --trigger-http \
                             --entry-point app \
                             --source gs://solar-system-lambda-bucket/solar-system-lambda-${BUILD_ID}.zip \
-                            --set-env-vars MONGO_USERNAME=${MONGO_USERNAME},MONGO_PASSWORD=${MONGO_PASSWORD},MONGO_URI=${MONGO_URI}
+                            --set-env-vars MONGO_USERNAME=${MONGO_USERNAME},MONGO_PASSWORD=${MONGO_PASSWORD},MONGO_URI=${MONGO_URI} \
                             --allow-unauthenticated
                     """
                 }
