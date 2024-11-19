@@ -97,3 +97,6 @@ app.get("/ready", async (req, res) => {
 
 // Start the server
 app.listen(port);
+
+// Export the app for testing
+module.exports = app;

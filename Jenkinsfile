@@ -343,6 +343,8 @@ EOF
 
                         sed -i "s/app\\.listen(port);/functions.http('app', app);/" app.js
 
+                        sed -i "s/^module.exports = app;/\\/\\/module.exports = app;/g" app.js
+
                         echo "******************************************************************"
                         tail app.js
                     '''
