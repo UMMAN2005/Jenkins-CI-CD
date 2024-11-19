@@ -173,6 +173,10 @@
       let currentUrl = window.location.href;
       console.log("Current URL: ", currentUrl);
 
+      currentUrl = currentUrl.endsWith("/")
+        ? currentUrl.slice(0, -1)
+        : currentUrl;
+
       /* on page load  */
       window.onload = function () {
         const planet_id = document.getElementById("planetID").value;
