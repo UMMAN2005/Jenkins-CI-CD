@@ -31,7 +31,7 @@ pipeline {
         SONAR_SCANNER_HOME = tool 'SonarQube-Scanner-620'
         GITEA_TOKEN = credentials('gitea-api-token')
         GITEA_URL = '34.122.218.25:3000'
-        CLUSTER_ADDRESS = 'https://5587d40b0dafbc9207ed36d7cd43271b.serveo.net'
+        CLUSTER_ADDRESS = 'https://0342535614a89b.lhr.life'
         HARBOR_DOMAIN = 'ayazumman.xyz'
         IMAGE = "${env.HARBOR_DOMAIN}/jenkins/solar-system"
         TAG = "${env.GIT_COMMIT ?: 'build-' + new Date().format('yyyyMMddHHmmss')}"
@@ -99,7 +99,7 @@ pipeline {
                 }
             }
         }
-/*
+
         stage('SAST - SonarQube') {
             steps {
                 timeout(time: 120, unit: 'SECONDS') {
@@ -298,7 +298,7 @@ EOF
                 '''
             }
         }
-*/
+
         stage('Upload - GCP Storage') {
             when {
                 branch 'PR*'
