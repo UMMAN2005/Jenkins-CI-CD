@@ -31,7 +31,7 @@ pipeline {
         SONAR_SCANNER_HOME = tool 'SonarQube-Scanner-620'
         GITEA_TOKEN = credentials('gitea-api-token')
         GITEA_URL = '34.122.218.25:3000'
-        CLUSTER_ADDRESS = 'https://0342535614a89b.lhr.life'
+        CLUSTER_ADDRESS = ''
         HARBOR_DOMAIN = 'ayazumman.xyz'
         IMAGE = "${env.HARBOR_DOMAIN}/jenkins/solar-system"
         TAG = "${env.GIT_COMMIT ?: 'build-' + new Date().format('yyyyMMddHHmmss')}"
@@ -57,6 +57,7 @@ pipeline {
         stage('Installing Dependencies') {
             steps {
                 sh 'npm install'
+                sh 'exit 1'
             }
         }
 
@@ -282,7 +283,10 @@ EOF
 
         stage('DAST - OWASP ZAP') {
             when {
-                branch 'PR*'
+                allOf {
+                    branch 'PR*'
+                    expression { env.CLUSTER_ADDRESS?.trim() }
+                }
             }
             steps {
                 sh '''
@@ -388,29 +392,28 @@ EOF
 
     post {
         always {
-            // slackNotificationMethod("${currentBuild.result}")
+            slackNotificationMethod("${currentBuild.result}")
 
             script {
                 if (fileExists('solar-system-gitops-argocd')) {
                     sh 'rm -rf solar-system-gitops-argocd'
                 }
             }
-/*
+
             junit allowEmptyResults: true, stdioRetention: '', testResults: 'test-results.xml'
             junit allowEmptyResults: true, stdioRetention: '', testResults: 'dependency-check-junit.xml' 
             junit allowEmptyResults: true, stdioRetention: '', testResults: 'trivy-image-CRITICAL-results.xml'
-            junit allowEmptyResults: true, stdioRetention: '', testResults: 'trivy-image-MEDIUM-results.xml'
+            junit allowEmptyResults: true, stdioRetention: '', testResults: 'trivy-image-LMH-results.xml'
 
             publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'zap_report.html', reportName: 'DAST - OWASP ZAP Report', reportTitles: '', useWrapperFileDirectly: true])
 
             publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'trivy-image-CRITICAL-results.html', reportName: 'Trivy Image Critical Vul Report', reportTitles: '', useWrapperFileDirectly: true])
 
-            publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'trivy-image-MEDIUM-results.html', reportName: 'Trivy Image Medium Vul Report', reportTitles: '', useWrapperFileDirectly: true])
+            publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'trivy-image-LMH-results.html', reportName: 'Trivy Image Medium Vul Report', reportTitles: '', useWrapperFileDirectly: true])
 
             publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'dependency-check-jenkins.html', reportName: 'Dependency Check HTML Report', reportTitles: '', useWrapperFileDirectly: true])
 
             publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'coverage/lcov-report', reportFiles: 'index.html', reportName: 'Code Coverage HTML Report', reportTitles: '', useWrapperFileDirectly: true])
-*/
         }
     }
 }
