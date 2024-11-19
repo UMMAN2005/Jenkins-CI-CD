@@ -1,4 +1,4 @@
-console.log("We are inside client.js");
+console.log("We are inside index.js");
 
 /* on page load  */
 window.onload = function () {
