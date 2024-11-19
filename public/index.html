@@ -169,11 +169,12 @@
     <script>
       console.log("We are inside index.js");
 
+      /* get current url */
+      let currentUrl = window.location.href;
+      console.log("Current URL: ", currentUrl);
+
       /* on page load  */
       window.onload = function () {
-        let currentUrl = window.location.href;
-        console.log("Current URL: ", currentUrl);
-
         const planet_id = document.getElementById("planetID").value;
         console.log("onLoad - Request Planet ID - " + planet_id);
 

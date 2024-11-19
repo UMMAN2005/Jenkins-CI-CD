@@ -377,9 +377,9 @@ EOF
                     sh '''
                         sleep 30s
 
-                        function_url_data=$(gcloud functions describe solar-system-function --format="value(httpsTrigger.url)")
+                        function_url=$(gcloud functions describe solar-system-function | grep url | awk '{ print $NF }')
 
-                        curl -Is $function_url_data/live | grep -i "200 OK"
+                        curl -Is $function_url/live | grep -iq 200
                     '''
                 }
             }
