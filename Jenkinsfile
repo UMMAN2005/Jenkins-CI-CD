@@ -338,38 +338,30 @@ EOF
                         gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
                     '''
                     sh '''
-                        # Modify app.js as required
                         tail app.js
                         echo "******************************************************************"
-                        sed -i 's/const port = 5555;/const port = process.env.PORT || 8080;/' app.js
 
-                        sed -i "/^app\\.listen(port/ s/^/\\/\\//" app.js
+                        sed -i "s/app\.listen(port);/functions.http('app', app);/" your_file.js
 
-                        sed -i "s/^module.exports = app;/\\/\\/module.exports = app;/g" app.js
-
-                        sed -i '/^\\/\\/module.exports = app;/a \\nexports.solarSystemFunction = (req, res) => {\\n  app(req, res);  // Route all requests to Express app\\n};' app.js
                         echo "******************************************************************"
                         tail app.js
                     '''
                     sh '''
-                        # Create a ZIP file of the function
-                        zip -qr solar-system-lambda-$BUILD_ID.zip app* package* index.html node*
+                        zip -qr solar-system-lambda-$BUILD_ID.zip app* package* public node*
                         ls -ltr solar-system-lambda-$BUILD_ID.zip
                     '''
                     sh '''
-                        # Upload the ZIP file to the GCS bucket
                         gsutil cp solar-system-lambda-$BUILD_ID.zip gs://solar-system-lambda-bucket/
                     '''
                     sh """
-                        # Deploy the function to GCP and set environment variables
                         gcloud functions deploy solar-system-function \
                             --runtime nodejs18 \
+                            --port 5555 \
                             --trigger-http \
-                            --entry-point handler \
+                            --entry-point app \
                             --source gs://solar-system-lambda-bucket/solar-system-lambda-${BUILD_ID}.zip \
                             --set-env-vars MONGO_USERNAME=${MONGO_USERNAME},MONGO_PASSWORD=${MONGO_PASSWORD},MONGO_URI=${MONGO_URI}
-                            --allow-unauthenticated \
-                            --timeout=300s
+                            --allow-unauthenticated
                     """
                 }
             }
@@ -382,13 +374,10 @@ EOF
             steps {
                 withCredentials([file(credentialsId: 'gcp-service-account-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                     sh '''
-                        # Wait for 30 seconds to ensure function is deployed and ready
                         sleep 30s
 
-                        # Get the function URL
                         function_url_data=$(gcloud functions describe solar-system-function --format="value(httpsTrigger.url)")
 
-                        # Use curl to invoke the function and check for a 200 OK response
                         curl -Is $function_url_data/live | grep -i "200 OK"
                     '''
                 }

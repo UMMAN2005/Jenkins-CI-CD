@@ -12,6 +12,6 @@ ENV MONGO_URI=uriPlaceholder
 ENV MONGO_USERNAME=usernamePlaceholder
 ENV MONGO_PASSWORD=passwordPlaceholder
 
-EXPOSE 8080
+EXPOSE 5555
 
 CMD [ "npm", "start" ]

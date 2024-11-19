@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const functions = require("@google-cloud/functions-framework");
 
 dotenv.config();
 
@@ -14,7 +15,7 @@ const port = 5555;
 
 // Middleware
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, "/")));
+app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
 
 // MongoDB connection setup
@@ -56,7 +57,7 @@ app.post("/planets", async (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "/", "index.html"));
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 app.get("/api-docs", (req, res) => {
@@ -96,5 +97,3 @@ app.get("/ready", async (req, res) => {
 
 // Start the server
 app.listen(port);
-
-module.exports = app;
