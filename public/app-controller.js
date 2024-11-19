@@ -23,6 +23,8 @@ window.onload = function () {
 };
 
 const btn = document.getElementById("submit");
+btn.style.cursor = "pointer";
+
 if (btn) {
   btn.addEventListener("click", func);
 }
