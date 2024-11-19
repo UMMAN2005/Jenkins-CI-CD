@@ -341,7 +341,7 @@ EOF
                         tail app.js
                         echo "******************************************************************"
 
-                        sed -i "s/app\.listen(port);/functions.http('app', app);/" your_file.js
+                        sed -i "s/app\\.listen(port);/functions.http('app', app);/" app.js
 
                         echo "******************************************************************"
                         tail app.js
